@@ -1,70 +1,221 @@
-# Getting Started with Create React App
+<div align="center">
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# 🔥 Firebase Realtime Notes App
 
-## Available Scripts
+**A full-stack notes application powered by React & Firebase — featuring real-time sync, secure authentication, and a stunning glassmorphism UI.**
 
-In the project directory, you can run:
+![React](https://img.shields.io/badge/React-18+-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![Firebase](https://img.shields.io/badge/Firebase-Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Completed-brightgreen?style=for-the-badge)
 
-### `npm start`
+[Features](#-features) · [Tech Stack](#️-tech-stack) · [Quick Start](#-quick-start) · [Firebase Setup](#-firebase-setup) · [Folder Structure](#-folder-structure) · [Roadmap](#-roadmap)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+</div>
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## ✨ Features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 🔐 Authentication
+| Feature | Description |
+|---|---|
+| Register | Create a new user account with email & password |
+| Login / Logout | Secure session management via Firebase Auth |
+| Protected Routes | Dashboard is only accessible to authenticated users |
+| Update Profile | Change display name at any time |
+| Update Email | Securely update the account email |
+| Update Password | Change password from within the app |
 
-### `npm run build`
+### 🗒️ Notes (Firestore CRUD)
+| Operation | Firebase Method |
+|---|---|
+| Create | `addDoc()` |
+| Read (Realtime) | `onSnapshot()` |
+| Update | `updateDoc()` |
+| Delete | `deleteDoc()` |
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+> **Realtime sync** — changes made in one tab/device appear instantly everywhere, with no page refresh needed.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### 🎨 UI / UX
+- Glassmorphism card design with gradient backgrounds
+- Responsive notes grid that adapts to any screen size
+- Smooth hover & transition animations throughout
+- Toast notifications for all user actions
+- Floating label inputs on auth pages
+- Dynamic search — filter notes by title in real time
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+---
 
-### `npm run eject`
+## 🛠️ Tech Stack
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+| Layer | Technology |
+|---|---|
+| Frontend Framework | React.js |
+| Routing | React Router DOM |
+| Styling | CSS3 (custom, no UI library) |
+| Notifications | React Toastify |
+| Authentication | Firebase Authentication |
+| Database | Firebase Firestore |
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## 🚀 Quick Start
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+### Prerequisites
+- Node.js ≥ 16
+- npm or yarn
+- A Firebase project (see [Firebase Setup](#-firebase-setup))
 
-## Learn More
+### 1. Clone the repository
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+git clone <repository-url>
+cd firebase-auth-app
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### 2. Install dependencies
 
-### Code Splitting
+```bash
+npm install
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### 3. Configure Firebase
 
-### Analyzing the Bundle Size
+Create `src/firebase.js` and paste your Firebase config (see [Firebase Setup](#-firebase-setup)):
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```js
+import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
-### Making a Progressive Web App
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+const app = initializeApp(firebaseConfig);
 
-### Advanced Configuration
+export const auth = getAuth(app);
+export const db = getFirestore(app);
+export default app;
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### 4. Start the development server
 
-### Deployment
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Open [http://localhost:3000](http://localhost:3000) to view the app.
 
-### `npm run build` fails to minify
+---
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## 🔥 Firebase Setup
+
+### Step 1 — Create a Firebase Project
+
+1. Go to [Firebase Console](https://console.firebase.google.com/)
+2. Click **Add Project** and follow the prompts
+3. Register a **Web App** inside the project to get your config keys
+
+### Step 2 — Enable Email/Password Authentication
+
+```
+Firebase Console → Authentication → Sign-in method → Email/Password → Enable
+```
+
+### Step 3 — Create Firestore Database
+
+```
+Firebase Console → Firestore Database → Create database → Start in production mode
+```
+
+### Step 4 — Set Firestore Security Rules
+
+Navigate to **Firestore Database → Rules**, replace the default rules with the following, then click **Publish**:
+
+```js
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /notes/{noteId} {
+      allow read, write: if request.auth != null;
+    }
+  }
+}
+```
+
+> ⚠️ These rules allow any authenticated user to read and write any note. For production, consider scoping rules to `request.auth.uid == resource.data.userId`.
+
+---
+
+## 📂 Folder Structure
+
+```
+src/
+│
+├── components/
+│   └── ProtectedRoute.jsx      # Redirects unauthenticated users
+│
+├── context/
+│   └── AuthContext.jsx         # Global auth state via React Context
+│
+├── pages/
+│   ├── Login.jsx               # Login page
+│   ├── Register.jsx            # Registration page
+│   ├── Dashboard.jsx           # Main notes CRUD interface
+│   ├── Dashboard.css           # Dashboard-specific styles
+│   └── Auth.css                # Shared auth page styles
+│
+├── firebase.js                 # Firebase initialization & exports
+├── App.js                      # Routes & app shell
+├── index.js                    # React entry point
+└── index.css                   # Global styles
+```
+
+---
+
+## 📸 Screens
+
+| Page | Description |
+|---|---|
+| **Login** | Animated sign-in form with floating labels |
+| **Register** | Account creation with validation |
+| **Dashboard** | Real-time notes grid with search, add, edit, delete |
+
+---
+
+## 🗺️ Roadmap
+
+- [x] Email/Password Authentication
+- [x] Firestore CRUD with real-time sync
+- [x] Protected routes
+- [x] Profile / email / password updates
+- [x] Search notes by title
+- [ ] Dark / Light theme toggle
+- [ ] Note categories & tags
+- [ ] Favourite / pin notes
+- [ ] Firebase Storage — image attachments
+- [ ] Pagination or infinite scroll
+- [ ] Framer Motion animations
+- [ ] Scoped Firestore rules per user
+
+---
+
+## 👨‍💻 Author
+
+Built with React + Firebase.  
+Contributions, issues, and feature requests are welcome — feel free to open a PR or issue.
+
+---
+
+<div align="center">
+
+If this project helped you, consider giving it a ⭐ on GitHub!
+
+</div>
