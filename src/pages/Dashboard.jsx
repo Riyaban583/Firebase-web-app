@@ -7,18 +7,7 @@ import {
   signOut
 } from 'firebase/auth';
 
-import {
-  collection,
-  addDoc,
-  onSnapshot,
-  deleteDoc,
-  updateDoc,
-  doc,
-  query,
-  where
-} from 'firebase/firestore';
-
-import { auth, db } from '../firebase';
+import { auth } from '../firebase';
 
 import { useNavigate } from 'react-router-dom';
 
@@ -31,39 +20,113 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   // PROFILE STATES
+
   const [name, setName] = useState('');
+
   const [email, setEmail] = useState('');
+
   const [password, setPassword] = useState('');
 
-  // NOTES STATES
-  const [title, setTitle] = useState('');
-  const [body, setBody] = useState('');
-  const [notes, setNotes] = useState([]);
-  const [editId, setEditId] = useState(null);
+  // PROFILE IMAGE
 
-  // SEARCH
-  const [search, setSearch] = useState('');
+  const [profileImage, setProfileImage] = useState(
+
+    localStorage.getItem('profileImage')
+
+    ||
+
+    'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'
+
+  );
+
+  // DARK MODE
+
+  const [darkMode, setDarkMode] = useState(false);
+
+  // LOAD SAVED THEME
+
+  useEffect(()=>{
+
+    const savedTheme = localStorage.getItem('theme');
+
+    if(savedTheme === 'dark'){
+
+      setDarkMode(true);
+
+    }else{
+
+      setDarkMode(false);
+
+    }
+
+  },[]);
+
+  // IMAGE UPLOAD
+
+  const handleImageChange = (e) => {
+
+    const file = e.target.files[0];
+
+    if(file){
+
+      const imageUrl = URL.createObjectURL(file);
+
+      setProfileImage(imageUrl);
+
+      localStorage.setItem(
+
+        'profileImage',
+
+        imageUrl
+
+      );
+
+      toast.success('Profile Photo Updated');
+
+    }
+  };
+
+  // THEME TOGGLE
+
+  const toggleTheme = () => {
+
+    const newTheme = !darkMode;
+
+    setDarkMode(newTheme);
+
+    localStorage.setItem(
+
+      'theme',
+
+      newTheme ? 'dark' : 'light'
+
+    );
+
+  };
 
   // UPDATE PROFILE
+
   const updateUser = async () => {
 
     try {
 
-      if (name) {
+      if(name){
 
         await updateProfile(auth.currentUser, {
-          displayName: name
+
+          displayName:name
+
         });
 
       }
 
-      if (email) {
+      if(email){
 
         await updateEmail(auth.currentUser, email);
 
       }
 
-      if (password) {
+      if(password){
 
         await updatePassword(auth.currentUser, password);
 
@@ -71,14 +134,27 @@ const Dashboard = () => {
 
       toast.success('Profile Updated');
 
-    } catch (error) {
+    } catch(error){
 
-      toast.error(error.message);
+      if(error.code === 'auth/requires-recent-login'){
+
+        toast.error(
+
+          'Please logout and login again'
+
+        );
+
+      }else{
+
+        toast.error(error.message);
+
+      }
 
     }
   };
 
   // LOGOUT
+
   const handleLogout = async () => {
 
     try {
@@ -89,136 +165,16 @@ const Dashboard = () => {
 
       navigate('/login');
 
-    } catch (error) {
+    } catch(error){
 
       toast.error(error.message);
 
     }
   };
-
-  // ADD NOTE
-  const addNote = async () => {
-
-    if (!title || !body) {
-
-      toast.error('Fill all fields');
-
-      return;
-    }
-
-    try {
-
-      await addDoc(collection(db, 'notes'), {
-
-        title,
-        body,
-        uid: auth.currentUser.uid,
-        createdAt: new Date().toLocaleString()
-
-      });
-
-      setTitle('');
-      setBody('');
-
-      toast.success('Note Added');
-
-    } catch (error) {
-
-      toast.error(error.message);
-
-    }
-  };
-
-  // REALTIME READ
-  useEffect(() => {
-
-    const q = query(
-
-      collection(db, 'notes'),
-
-      where('uid', '==', auth.currentUser.uid)
-
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-
-      const allNotes = snapshot.docs.map((doc) => ({
-
-        id: doc.id,
-        ...doc.data()
-
-      }));
-
-      setNotes(allNotes);
-
-    });
-
-    return () => unsubscribe();
-
-  }, []);
-
-  // DELETE NOTE
-  const deleteNote = async (id) => {
-
-    try {
-
-      await deleteDoc(doc(db, 'notes', id));
-
-      toast.success('Note Deleted');
-
-    } catch (error) {
-
-      toast.error(error.message);
-
-    }
-  };
-
-  // EDIT NOTE
-  const editNote = (note) => {
-
-    setTitle(note.title);
-    setBody(note.body);
-    setEditId(note.id);
-
-  };
-
-  // UPDATE NOTE
-  const updateNote = async () => {
-
-    try {
-
-      const noteRef = doc(db, 'notes', editId);
-
-      await updateDoc(noteRef, {
-
-        title,
-        body
-
-      });
-
-      toast.success('Note Updated');
-
-      setTitle('');
-      setBody('');
-      setEditId(null);
-
-    } catch (error) {
-
-      toast.error(error.message);
-
-    }
-  };
-
-  // SEARCH FILTER
-  const filteredNotes = notes.filter((note) =>
-
-    note.title.toLowerCase().includes(search.toLowerCase())
-
-  );
 
   return (
 
-    <div className='dashboard'>
+    <div className={darkMode ? 'dashboard dark' : 'dashboard'}>
 
       <div className='dashboard-container'>
 
@@ -226,179 +182,151 @@ const Dashboard = () => {
 
         <div className='top-bar'>
 
-          <h1>Notes Dashboard</h1>
+          <h1>Dashboard</h1>
 
-          <button
-            className='logout-btn'
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-
-        </div>
-
-        {/* PROFILE */}
-
-        <div className='profile-card'>
-
-          <h2>User Profile</h2>
-
-          <p>
-            <strong>Name:</strong>
-            {" "}
-            {auth.currentUser?.displayName || 'No Name'}
-          </p>
-
-          <p>
-            <strong>Email:</strong>
-            {" "}
-            {auth.currentUser?.email}
-          </p>
-
-          <div className='input-group'>
-
-            <input
-              type='text'
-              placeholder='Update Name'
-              onChange={(e) => setName(e.target.value)}
-            />
-
-            <input
-              type='email'
-              placeholder='Update Email'
-              onChange={(e) => setEmail(e.target.value)}
-            />
-
-            <input
-              type='password'
-              placeholder='Update Password'
-              onChange={(e) => setPassword(e.target.value)}
-            />
+          <div className='top-buttons'>
 
             <button
-              className='update-btn'
-              onClick={updateUser}
+              className='theme-btn'
+              onClick={toggleTheme}
             >
-              Update Profile
+
+              {darkMode ? '☀️ Light' : '🌙 Dark'}
+
+            </button>
+
+            <button
+              className='logout-btn'
+              onClick={handleLogout}
+            >
+
+              Logout
+
             </button>
 
           </div>
 
         </div>
 
-        {/* NOTES SECTION */}
+        {/* MAIN CONTENT */}
 
-        <div className='notes-section'>
+        <div className='dashboard-layout'>
 
-          <h2>Firestore Notes App</h2>
+          {/* PROFILE CARD */}
 
-          {/* SEARCH */}
+          <div className='profile-card'>
 
-          <input
-            type='text'
-            placeholder='Search Notes'
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className='search-input'
-          />
+            <h2>User Profile</h2>
 
-          {/* NOTE FORM */}
+            {/* PROFILE IMAGE */}
 
-          <div className='note-form'>
+            <div className='profile-image-section'>
 
-            <input
-              type='text'
-              placeholder='Note Title'
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-            />
+              <img
 
-            <textarea
-              placeholder='Write your note here...'
-              value={body}
-              onChange={(e) => setBody(e.target.value)}
-            />
+                src={profileImage}
 
-            {
+                alt='Profile'
 
-              editId ? (
+                className='profile-image'
+              />
 
-                <button
-                  className='update-btn'
-                  onClick={updateNote}
-                >
-                  Update Note
-                </button>
+              <label className='upload-btn'>
 
-              ) : (
+                Upload Photo
 
-                <button
-                  className='add-btn'
-                  onClick={addNote}
-                >
-                  Add Note
-                </button>
+                <input
+                  type='file'
+                  accept='image/*'
+                  hidden
+                  onChange={handleImageChange}
+                />
 
-              )
+              </label>
 
-            }
+            </div>
+
+            {/* USER INFO */}
+
+            <div className='user-info'>
+
+              <p>
+
+                <strong>Name:</strong>
+
+                {' '}
+
+                {auth.currentUser?.displayName || 'No Name'}
+
+              </p>
+
+              <p>
+
+                <strong>Email:</strong>
+
+                {' '}
+
+                {auth.currentUser?.email}
+
+              </p>
+
+            </div>
+
+            {/* INPUTS */}
+
+            <div className='input-group'>
+
+              <input
+                type='text'
+                placeholder='Update Name'
+                onChange={(e)=>setName(e.target.value)}
+              />
+
+              <input
+                type='email'
+                placeholder='Update Email'
+                onChange={(e)=>setEmail(e.target.value)}
+              />
+
+              <input
+                type='password'
+                placeholder='Update Password'
+                onChange={(e)=>setPassword(e.target.value)}
+              />
+
+              <button
+                className='update-btn'
+                onClick={updateUser}
+              >
+
+                Update Profile
+
+              </button>
+
+            </div>
 
           </div>
 
-          {/* NOTES GRID */}
+          {/* QUICK ACTIONS */}
 
-          <div className='notes-grid'>
+          <div className='quick-actions'>
 
-            {
+            <h2>Quick Access</h2>
 
-              filteredNotes.length > 0 ? (
+            <div className='action-buttons'>
 
-                filteredNotes.map((note) => (
+              <button
+                className='notes-btn'
+                onClick={()=>navigate('/notes')}
+              >
 
-                  <div
-                    className='note-card'
-                    key={note.id}
-                  >
+                <span>📝</span>
 
-                    <h3>{note.title}</h3>
+                Open Notes
 
-                    <p>{note.body}</p>
+              </button>
 
-                    <small className='time'>
-                      {note.createdAt}
-                    </small>
-
-                    <div className='note-buttons'>
-
-                      <button
-                        className='edit-btn'
-                        onClick={() => editNote(note)}
-                      >
-                        Edit
-                      </button>
-
-                      <button
-                        className='delete-btn'
-                        onClick={() => deleteNote(note.id)}
-                      >
-                        Delete
-                      </button>
-
-                    </div>
-
-                  </div>
-
-                ))
-
-              ) : (
-
-                <h3 className='empty-notes'>
-                  No Notes Found
-                </h3>
-
-              )
-
-            }
+            </div>
 
           </div>
 
@@ -407,6 +335,7 @@ const Dashboard = () => {
       </div>
 
     </div>
+
   );
 };
 

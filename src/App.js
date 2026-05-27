@@ -8,6 +8,7 @@ import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 
 import { AuthProvider } from './context/AuthContext';
+import Notes from './pages/Notes';
 
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -35,6 +36,15 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+  path="/notes"
+  element={
+    <ProtectedRoute>
+      <Notes />
+    </ProtectedRoute>
+  }
+/>
 
         </Routes>
 
