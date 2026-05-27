@@ -11,5 +11,5 @@ export const auth = getAuth(app);
 // FIRESTORE
 export const db = getFirestore(app);
 
-
+export default app;
 
