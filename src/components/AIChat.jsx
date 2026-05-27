@@ -14,7 +14,7 @@ const AIChat = () => {
 
   const sendMessage = async () => {
 
-    if(!message){
+    if (!message.trim()) {
 
       return;
 
@@ -30,11 +30,17 @@ const AIChat = () => {
 
     };
 
-    setMessages((prev)=>
+    setMessages((prev) => [
 
-      [...prev, userMessage]
+      ...prev,
 
-    );
+      userMessage
+
+    ]);
+
+    const currentMessage = message;
+
+    setMessage('');
 
     setLoading(true);
 
@@ -46,13 +52,16 @@ const AIChat = () => {
 
         {
 
-          model: 'openai/gpt-3.5-turbo',
+          model: 'openrouter/auto',
 
           messages: [
 
             {
+
               role: 'user',
-              content: message
+
+              content: currentMessage
+
             }
 
           ]
@@ -64,10 +73,16 @@ const AIChat = () => {
           headers: {
 
             Authorization:
-
               `Bearer ${process.env.REACT_APP_OPENROUTER_API_KEY}`,
 
-            'Content-Type': 'application/json'
+            'HTTP-Referer':
+              'http://localhost:3000',
+
+            'X-Title':
+              'Firebase Notes App',
+
+            'Content-Type':
+              'application/json'
 
           }
 
@@ -75,45 +90,51 @@ const AIChat = () => {
 
       );
 
+      console.log(response.data);
+
       const aiReply = {
 
         type: 'ai',
 
         text:
-
           response.data.choices[0].message.content
 
       };
 
-      setMessages((prev)=>
+      setMessages((prev) => [
 
-        [...prev, aiReply]
+        ...prev,
+
+        aiReply
+
+      ]);
+
+    } catch (error) {
+
+      console.log(
+
+        error.response?.data || error.message
 
       );
-
-    } catch(error){
-
-      console.log(error);
 
       const errorReply = {
 
         type: 'ai',
 
         text:
-
-          '❌ Something went wrong.'
+          '❌ API Error. Check Console.'
 
       };
 
-      setMessages((prev)=>
+      setMessages((prev) => [
 
-        [...prev, errorReply]
+        ...prev,
 
-      );
+        errorReply
+
+      ]);
 
     }
-
-    setMessage('');
 
     setLoading(false);
 
@@ -130,12 +151,18 @@ const AIChat = () => {
         <div className='bot-info'>
 
           <div className='bot-avatar'>
+
             🤖
+
           </div>
 
           <div>
 
-            <h2>AI Assistant</h2>
+            <h2>
+
+              AI Assistant
+
+            </h2>
 
             <p>
 
@@ -180,23 +207,26 @@ const AIChat = () => {
 
         {
 
-          messages.map((msg,index)=>(
+          messages.map((msg, index) => (
 
             <div
 
               key={index}
 
               className={
+
                 msg.type === 'user'
 
-                ?
+                  ?
 
-                'message user-message'
+                  'message user-message'
 
-                :
+                  :
 
-                'message ai-message'
+                  'message ai-message'
+
               }
+
             >
 
               {msg.text}
@@ -235,14 +265,15 @@ const AIChat = () => {
 
           value={message}
 
-          onChange={(e)=>
+          onChange={(e) =>
 
             setMessage(e.target.value)
+
           }
 
-          onKeyDown={(e)=>{
+          onKeyDown={(e) => {
 
-            if(e.key === 'Enter'){
+            if (e.key === 'Enter') {
 
               sendMessage();
 
@@ -263,6 +294,7 @@ const AIChat = () => {
     </div>
 
   );
+
 };
 
 export default AIChat;
